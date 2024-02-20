@@ -3,30 +3,45 @@ from datetime import datetime, timedelta
 
 class Field:
     def __init__(self, value=None):
-        self.value = value
+        self._value = value
 
     def __str__(self):
-        return str(self.value)
+        return str(self._value)
 
-    def __set__(self, instance, value):
-        self.value = value
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        self._value = new_value
 
 class Name(Field):
     pass
 
 class Phone(Field):
-    def __set__(self, instance, value):
-        if not value.isdigit():
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        if not new_value.isdigit():
             raise ValueError("Phone number must contain only digits.")
-        super().__set__(instance, value)
+        self._value = new_value
 
 class Birthday(Field):
-    def __set__(self, instance, value):
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
         try:
-            datetime.strptime(value, "%Y-%m-%d")
+            datetime.strptime(new_value, "%Y-%m-%d")
         except ValueError:
             raise ValueError("Invalid date format. Please use YYYY-MM-DD.")
-        super().__set__(instance, value)
+        self._value = new_value
 
 class Record:
     def __init__(self, name, birthday=None):
@@ -59,7 +74,6 @@ class AddressBook(UserDict):
         return iter(self.data.values())
 
     def __next__(self):
-        # Not necessary, but included for clarity
         pass
 
     def paginate(self, page_size):
